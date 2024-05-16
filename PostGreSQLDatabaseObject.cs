@@ -38,7 +38,11 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <summary>Commits updates and inserts. This is only for Oracle database operations.</summary>
         public override void Commit() => CommitTransaction();
 
-        public override IDbConnection Connection => _connection;
+        /// <summary>
+        /// Returns the active connection. If the stack has a connection then it is returned.
+        /// connection is created.
+        /// </summary>
+        public override IDbConnection Connection => _connection == null ? (NpgsqlConnection) base.Connection : (NpgsqlConnection) _connection;
 
         /// <summary>Opens an SqlServer Connection</summary>
         /// <returns></returns>

@@ -4,10 +4,10 @@
 	<TargetFramework>net8.0</TargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<Nullable>enable</Nullable>
-	<AssemblyVersion>1.0.0.1</AssemblyVersion>
-	<FileVersion>1.0.0.1</FileVersion>
-	<VersionPrefix>1.0.0.1</VersionPrefix>
-	<Version>1.0.0-alpha-1</Version>
+	<AssemblyVersion>1.0.0.2</AssemblyVersion>
+	<FileVersion>1.0.0.2</FileVersion>
+	<VersionPrefix>1.0.0.2</VersionPrefix>
+	<Version>1.0.0-alpha-2</Version>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<Title>CodedThought.Core.Data.PostgreSQL</Title>
 	<Authors>Erik Bartlow</Authors>
