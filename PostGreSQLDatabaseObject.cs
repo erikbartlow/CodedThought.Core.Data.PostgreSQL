@@ -99,7 +99,7 @@ namespace CodedThought.Core.Data.PostgreSQL
 
         #region Parameters
 
-        /// <summary>Returns the param connector for SQLServer, @</summary>
+        /// <summary>Returns the param connector</summary>
         /// <returns></returns>
         public override string ParameterConnector => "@";
 
@@ -110,7 +110,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <summary>Gets the column delimiter character.</summary>
         public override string ColumnDelimiter => throw new NotImplementedException();
 
-        /// <summary>Creates the SQL server param.</summary>
+        /// <summary>Creates the database server param.</summary>
         /// <param name="srcTableColumnName">Name of the SRC table column.</param>
         /// <param name="paramType">         Type of the param.</param>
         /// <returns></returns>
@@ -121,7 +121,7 @@ namespace CodedThought.Core.Data.PostgreSQL
             return param;
         }
 
-        /// <summary>Creates the SQL server param.</summary>
+        /// <summary>Creates the database server param.</summary>
         /// <param name="srcTableColumnName">Name of the SRC table column.</param>
         /// <param name="paramType">         Type of the param.</param>
         /// <param name="size">              The size.</param>
@@ -253,14 +253,7 @@ namespace CodedThought.Core.Data.PostgreSQL
 
         /// <summary>Create an empty parameter for SQLServer</summary>
         /// <returns></returns>
-        public override IDataParameter CreateEmptyParameter()
-        {
-            IDataParameter returnValue = null;
-
-            returnValue = new NpgsqlParameter();
-
-            return returnValue;
-        }
+        public override IDataParameter CreateEmptyParameter() => new NpgsqlParameter();
 
         /// <summary>Creates the output parameter.</summary>
         /// <param name="parameterName">Name of the parameter.</param>
@@ -271,7 +264,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// </exception>
         public override IDataParameter CreateOutputParameter(string parameterName, DbTypeSupported returnType)
         {
-            IDataParameter returnParam = null;
+            IDataParameter returnParam = CreateEmptyParameter();
             NpgsqlDbType sqlType;
             switch (returnType)
             {
@@ -342,7 +335,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// </exception>
         public override IDataParameter CreateReturnParameter(string parameterName, DbTypeSupported returnType)
         {
-            IDataParameter returnParam = null;
+            IDataParameter returnParam = CreateEmptyParameter();
             NpgsqlDbType sqlType;
             switch (returnType)
             {
@@ -407,7 +400,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <returns></returns>
         public override IDataParameter CreateStringParameter(string srcTableColumnName, string parameterValue)
         {
-            IDataParameter returnValue = null;
+            IDataParameter returnValue = CreateEmptyParameter();
 
             returnValue = CreatDbServerParam(srcTableColumnName, NpgsqlDbType.Varchar);
             returnValue.Value = parameterValue != string.Empty ? parameterValue : DBNull.Value;
@@ -421,7 +414,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <returns></returns>
         public override IDataParameter CreateInt32Parameter(string srcTableColumnName, int parameterValue)
         {
-            IDataParameter returnValue = null;
+            IDataParameter returnValue = CreateEmptyParameter();
 
             returnValue = CreatDbServerParam(srcTableColumnName, NpgsqlDbType.Integer);
             returnValue.Value = parameterValue != int.MinValue ? parameterValue : DBNull.Value;
@@ -435,7 +428,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <returns></returns>
         public override IDataParameter CreateDoubleParameter(string srcTableColumnName, double parameterValue)
         {
-            IDataParameter returnValue = null;
+            IDataParameter returnValue = CreateEmptyParameter();
 
             returnValue = CreatDbServerParam(srcTableColumnName, NpgsqlDbType.Money);
             returnValue.Value = parameterValue != double.MinValue ? parameterValue : DBNull.Value;
@@ -449,7 +442,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <returns></returns>
         public override IDataParameter CreateDateTimeParameter(string srcTableColumnName, DateTime parameterValue)
         {
-            IDataParameter returnValue = null;
+            IDataParameter returnValue = CreateEmptyParameter();
 
             returnValue = CreatDbServerParam(srcTableColumnName, NpgsqlDbType.Date);
             returnValue.Value = parameterValue != DateTime.MinValue ? parameterValue : DBNull.Value;
@@ -464,7 +457,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <returns></returns>
         public override IDataParameter CreateCharParameter(string srcTableColumnName, string parameterValue, int size)
         {
-            IDataParameter returnValue = null;
+            IDataParameter returnValue = CreateEmptyParameter();
 
             returnValue = CreatDbServerParam(srcTableColumnName, NpgsqlDbType.Varchar);
             returnValue.Value = parameterValue != string.Empty ? parameterValue : DBNull.Value;
@@ -479,7 +472,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <returns></returns>
         public IDataParameter CreateBlobParameter(string srcTableColumnName, byte[] parameterValue, int size)
         {
-            IDataParameter returnValue = null;
+            IDataParameter returnValue = CreateEmptyParameter();
 
             returnValue = CreatDbServerParam(srcTableColumnName, NpgsqlDbType.Bytea, size);
             returnValue.Value = parameterValue;
@@ -493,7 +486,7 @@ namespace CodedThought.Core.Data.PostgreSQL
         /// <returns></returns>
         public override IDataParameter CreateGuidParameter(string srcTableColumnName, Guid parameterValue)
         {
-            IDataParameter returnValue = null;
+            IDataParameter returnValue = CreateEmptyParameter();
 
             returnValue = CreatDbServerParam(srcTableColumnName, NpgsqlDbType.Uuid);
             returnValue.Value = parameterValue;
@@ -685,7 +678,7 @@ namespace CodedThought.Core.Data.PostgreSQL
             return $"{schemaName}.{tableName}";
 
         }
-        public override string GetSchemaName() => DefaultSchemaName == string.Empty ? "public" : $"{DefaultSchemaName}";
+        public override string GetSchemaName() => DefaultSchemaName == string.Empty ? "public" : DefaultSchemaName;
 
 
         #region Schema Definition Queries
@@ -725,9 +718,13 @@ namespace CodedThought.Core.Data.PostgreSQL
                 sql.Append("SELECT C.COLUMN_NAME, C.DATA_TYPE, ");
                 sql.Append("CASE WHEN C.IS_NULLABLE = 'NO' THEN 0 ELSE 1 END as IS_NULLABLE, ");
                 sql.Append("CASE WHEN C.CHARACTER_MAXIMUM_LENGTH IS NULL THEN 0 ELSE C.CHARACTER_MAXIMUM_LENGTH END AS CHARACTER_MAXIMUM_LENGTH, ");
-                sql.Append("C.ORDINAL_POSITION - 1 as ORDINAL_POSITION, ");
-                sql.Append("CASE WHEN C.IS_IDENTITY = 'NO' THEN 0 ELSE 1 END as IS_IDENTITY ");
+                sql.Append("C.ORDINAL_POSITION - 1 as ORDINAL_POSITION, COLUMNPROPERTY(OBJECT_ID(c.TABLE_SCHEMA + '.' + c.TABLE_NAME), c.COLUMN_NAME, 'IsIdentity') as IS_IDENTITY, ");
+                sql.Append("CASE WHEN C2.CONSTRAINT_TYPE = 'PRIMARY KEY' THEN 1 ELSE 0 END AS IS_PRIMARY_KEY ");
                 sql.Append("FROM INFORMATION_SCHEMA.COLUMNS C ");
+                sql.Append("LEFT OUTER JOIN ( ");
+                sql.Append("SELECT CON.*, T.CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS T ");
+                sql.Append("INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE CON ON CON.CONSTRAINT_NAME = T.CONSTRAINT_NAME) ");
+                sql.Append("C2 ON C2.COLUMN_NAME = C.COLUMN_NAME AND C2.TABLE_NAME = C.TABLE_NAME ");
                 sql.AppendFormat("WHERE C.TABLE_NAME = '{0}' AND C.TABLE_SCHEMA = '{1}' ORDER BY C.ORDINAL_POSITION", tName, schemaName);
 
                 return sql.ToString();
@@ -799,9 +796,10 @@ namespace CodedThought.Core.Data.PostgreSQL
                         Type = ToDbSupportedType(row["DATA_TYPE"].ToString()),
                         MaxLength = Convert.ToInt32(row["CHARACTER_MAXIMUM_LENGTH"]),
                         IsIdentity = Convert.ToBoolean(row["IS_IDENTITY"]),
+                        IsPrimary = Convert.ToBoolean(row["IS_PRIMARY_KEY"]),
                         OrdinalPosition = Convert.ToInt32(row["ORDINAL_POSITION"])
                     };
-
+                    column.DbType = ToDbType(column.SystemType);
                     tableDefinitions.Add(column);
                 }
                 return tableDefinitions;
@@ -854,6 +852,7 @@ namespace CodedThought.Core.Data.PostgreSQL
                             Type = ToDbSupportedType(col["DATA_TYPE"].ToString()),
                             MaxLength = Convert.ToInt32(col["CHARACTER_MAXIMUM_LENGTH"]),
                             IsIdentity = Convert.ToBoolean(col["IS_IDENTITY"]),
+                            IsPrimary = Convert.ToBoolean(col["IS_PRIMARY_KEY"]),
                             OrdinalPosition = Convert.ToInt32(col["ORDINAL_POSITION"])
                         };
                         column.DbType = ToDbType(column.SystemType);
@@ -885,6 +884,7 @@ namespace CodedThought.Core.Data.PostgreSQL
                     {
                         Name = row["TABLE_NAME"].ToString(),
                         Owner = row["TABLE_SCHEMA"].ToString(),
+                        IsView = true,
                         Columns = []
                     };
                     DataTable dtColumns = ExecuteDataTable(GetViewDefinitionQuery(viewSchema.Name));
@@ -895,8 +895,10 @@ namespace CodedThought.Core.Data.PostgreSQL
                             Name = col["COLUMN_NAME"].ToString(),
                             IsNullable = Convert.ToBoolean(col["IS_NULLABLE"]),
                             SystemType = ToSystemType(col["DATA_TYPE"].ToString()),
+                            Type = ToDbSupportedType(col["DATA_TYPE"].ToString()),
                             MaxLength = Convert.ToInt32(col["CHARACTER_MAXIMUM_LENGTH"]),
                             IsIdentity = Convert.ToBoolean(col["IS_IDENTITY"]),
+                            IsPrimary = Convert.ToBoolean(col["IS_PRIMARY_KEY"]),
                             OrdinalPosition = Convert.ToInt32(col["ORDINAL_POSITION"])
                         };
                         column.DbType = ToDbType(column.SystemType);

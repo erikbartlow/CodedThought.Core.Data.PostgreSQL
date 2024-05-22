@@ -4,10 +4,10 @@
 	<TargetFramework>net8.0</TargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<Nullable>enable</Nullable>
-	<AssemblyVersion>1.0.0.2</AssemblyVersion>
-	<FileVersion>1.0.0.2</FileVersion>
-	<VersionPrefix>1.0.0.2</VersionPrefix>
-	<Version>1.0.0-alpha-2</Version>
+	<AssemblyVersion>1.0.0.4</AssemblyVersion>
+	<FileVersion>1.0.0.4</FileVersion>
+	<VersionPrefix>1.0.0.4</VersionPrefix>
+	<Version>1.0.0-alpha-4</Version>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<Title>CodedThought.Core.Data.PostgreSQL</Title>
 	<Authors>Erik Bartlow</Authors>
@@ -32,7 +32,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
-    <PackageReference Include="Npgsql" Version="8.0.2" />
+    <PackageReference Include="Npgsql" Version="8.0.3" />
   </ItemGroup>
 
   <ItemGroup>
