@@ -26,10 +26,7 @@ namespace CodedThought.Core.Data.PostgreSQL
 
         #region Constructor
 
-        public PostGreSQLDatabaseObject() : base()
-        {
-            _connection = new();
-        }
+        public PostGreSQLDatabaseObject() : base() => _connection = new();
 
         #endregion Constructor
 
@@ -205,8 +202,9 @@ namespace CodedThought.Core.Data.PostgreSQL
                         break;
 
                     case DbTypeSupported.dbDateTime:
+                    case DbTypeSupported.dbDateTime2:
                         isNull = ((DateTime) extractedData == DateTime.MinValue);
-                        sqlDataType = (int) NpgsqlDbType.Date;
+                        sqlDataType = (int) NpgsqlDbType.TimestampTz;
                         break;
 
                     case DbTypeSupported.dbChar:
@@ -1119,6 +1117,8 @@ namespace CodedThought.Core.Data.PostgreSQL
             "UUID" => DbTypeSupported.dbGUID,
             _ => DbTypeSupported.dbVarChar
         };
+        protected override Task<IDbConnection> OpenConnectionAsync() => throw new NotImplementedException();
+        public override Task<bool> TestConnectionAsync() => throw new NotImplementedException();
 
         #endregion Database Specific
 
